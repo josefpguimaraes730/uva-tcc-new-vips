@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "NewVipsApp"
+rootProject.name = "Cadastro VIPs"
 include(":app")
