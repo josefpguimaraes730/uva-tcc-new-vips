@@ -4,10 +4,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-/**
- * Gerenciador de Sessão Transiente (Em memória).
- * Mantém o ID do usuário atualmente ativo no dispositivo para guiar as consultas isoladas.
- */
 object UserSessionManager {
     
     private val _usuarioAtivoId = MutableStateFlow<String?>(null)

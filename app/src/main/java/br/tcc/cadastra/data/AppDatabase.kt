@@ -33,7 +33,6 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "instituicao_social_db"
                 )
-                // Estratégia de migração simples para ambiente de desenvolvimento do TCC
                 .fallbackToDestructiveMigration()
                 .build()
                 INSTANCE = instance

@@ -21,12 +21,12 @@ interface ParticipanteDao {
     fun listarParticipantesPorUsuario(usuarioAtivoId: String): Flow<List<ParticipanteEntity>>
 
     @Query("""
-        SELECT estagioFunil, COUNT(*) as total 
+        SELECT estagioFunil AS estagio, COUNT(*) AS quantidade 
         FROM tabela_participantes 
-        WHERE usuarioLocalId = :usuarioAtivoId
+        WHERE usuarioLocalId = :usuarioId 
         GROUP BY estagioFunil
     """)
-    fun obterMetricasFunilLocal(usuarioAtivoId: String): Flow<List<MetricaFunil>>
+    fun obterMetricasFunilLocal(usuarioId: String): Flow<List<MetricaFunil>>
 
     @Query("""
         DELETE FROM tabela_participantes 
@@ -41,8 +41,3 @@ interface ParticipanteDao {
     """)
     suspend fun executarExpurgoDadosSincronizados(usuarioAtivoId: String)
 }
-
-data class MetricaFunil(
-    val estagioFunil: String,
-    val total: Int
-)
