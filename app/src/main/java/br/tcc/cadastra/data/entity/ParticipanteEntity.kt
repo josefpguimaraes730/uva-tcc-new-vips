@@ -24,7 +24,7 @@ data class ParticipanteEntity(
     val nome: String,
     val estagioFunil: String,
     val dataCriacao: Long,
-    
+    val telefone: String,
     val sincronizado: Boolean = false,
     val idRemoto: String? = null
 )

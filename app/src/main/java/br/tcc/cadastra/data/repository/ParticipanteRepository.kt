@@ -19,6 +19,7 @@ class ParticipanteRepository(private val participanteDao: ParticipanteDao) {
             nome = nome,
             estagioFunil = estagioFunil,
             dataCriacao = System.currentTimeMillis(),
+            telefone = "",
             sincronizado = false,
             idRemoto = null
         )
