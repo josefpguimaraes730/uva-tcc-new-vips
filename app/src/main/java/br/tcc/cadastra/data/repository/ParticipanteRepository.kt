@@ -19,7 +19,7 @@ class ParticipanteRepository(private val participanteDao: ParticipanteDao) {
             nome = nome,
             estagioFunil = estagioFunil,
             dataCriacao = System.currentTimeMillis(),
-            sincronizado = false, // v1 offline nasce descompactado
+            sincronizado = false,
             idRemoto = null
         )
         
