@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import br.tcc.cadastra.data.dao.ParticipanteDao
 import br.tcc.cadastra.data.dao.SessaoUsuarioDao
+import br.tcc.cadastra.data.db.AppDatabase
 import br.tcc.cadastra.data.repository.AutenticacaoRepository
 import br.tcc.cadastra.data.repository.CelulaRepository
 import br.tcc.cadastra.data.repository.ParticipanteRepository

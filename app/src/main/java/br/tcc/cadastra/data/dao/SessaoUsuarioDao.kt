@@ -14,11 +14,11 @@ interface SessaoUsuarioDao {
     suspend fun salvarUsuarioLocal(usuario: SessaoUsuarioEntity)
 
     @Query("SELECT * FROM sessao_usuario WHERE usuarioId = :usuarioId LIMIT 1")
-    suspend fun buscarUsuarioPorId(usuarioId: String): SessaoUsuarioEntity?
+    suspend fun buscarUsuarioPorId(usuarioId: Long): SessaoUsuarioEntity?
 
     @Query("SELECT * FROM sessao_usuario ORDER BY nome ASC")
     fun listarTodosOsPerfisLocais(): Flow<List<SessaoUsuarioEntity>>
 
     @Query("DELETE FROM sessao_usuario WHERE usuarioId = :usuarioId")
-    suspend fun removerPerfilLocal(usuarioId: String)
+    suspend fun removerPerfilLocal(usuarioId: Long)
 }

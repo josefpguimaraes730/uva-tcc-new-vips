@@ -8,6 +8,7 @@ import br.tcc.cadastra.data.repository.CelulaRepository
 import br.tcc.cadastra.data.repository.ParticipanteRepository
 import br.tcc.cadastra.data.dao.MetricaFunil
 import br.tcc.cadastra.data.session.UserSessionManager
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -15,7 +16,7 @@ import kotlinx.coroutines.launch
 
 class ParticipanteViewModel(
     private val participanteRepository: ParticipanteRepository,
-    private val celulaRepository: CelulaRepository
+    val celulaRepository: CelulaRepository
 ) : ViewModel() {
 
     val todasCelulas: StateFlow<List<CelulaEntity>> = celulaRepository.todasCelulas
@@ -27,8 +28,19 @@ class ParticipanteViewModel(
     val metricasFunil: StateFlow<List<MetricaFunil>> = participanteRepository.obterMetricasFunilDoUsuarioAtivo()
         .stateIn(scope = viewModelScope, started = SharingStarted.WhileSubscribed(5000), initialValue = emptyList())
 
+    private val _participanteEmEdicao = MutableStateFlow<ParticipanteEntity?>(null)
+    val participanteEmEdicao: StateFlow<ParticipanteEntity?> = _participanteEmEdicao
+
+    fun iniciarEdicao(participante: ParticipanteEntity) {
+        _participanteEmEdicao.value = participante
+    }
+
+    fun limparEdicao() {
+        _participanteEmEdicao.value = null
+    }
+
     fun salvarParticipante(
-        idLocal: Long = 0,
+        idLocal: Long,
         nome: String,
         telefone: String,
         temWhatsapp: Boolean,
@@ -46,17 +58,16 @@ class ParticipanteViewModel(
         idRemoto: Long?
     ) {
         viewModelScope.launch {
-            val usuarioId = UserSessionManager.obterIdObrigatorio()
+            val usuarioId = UserSessionManager.usuarioAtivoId.value ?: 0
+            val usuarioIdEfetivo = if (usuarioId == 0L) null else usuarioId
+
             val participante = ParticipanteEntity(
                 idLocal = idLocal,
-                usuarioLocalId = usuarioId,
+                usuarioLocalId = usuarioIdEfetivo,
                 nome = nome,
                 telefone = telefone,
                 temWhatsapp = temWhatsapp,
                 estagioFunil = estagioFunil,
-                dataCriacao = System.currentTimeMillis(),
-                sincronizado = false,
-                idRemoto = idRemoto,
                 bairro = bairro,
                 cidade = cidade,
                 dataNascimento = dataNascimento,
@@ -66,7 +77,10 @@ class ParticipanteViewModel(
                 comoConheceu = comoConheceu,
                 acompanhantes = acompanhantes,
                 apelo = apelo,
-                uGroupIndicado = uGroupIndicado
+                uGroupIndicado = uGroupIndicado,
+                dataCriacao = System.currentTimeMillis(),
+                sincronizado = false,
+                idRemoto = idRemoto
             )
             participanteRepository.salvarParticipanteCompleto(participante)
         }

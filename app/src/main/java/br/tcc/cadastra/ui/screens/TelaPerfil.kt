@@ -40,7 +40,12 @@ fun TelaPerfilLocal(
             onClick = { mostrarAcompanhamentos = !mostrarAcompanhamentos },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(if (mostrarAcompanhamentos) "Ocultar Acompanhamentos" else "Ver Acompanhamentos ativos")
+            Text(
+                text = if (mostrarAcompanhamentos)
+                    "Ocultar Acompanhamentos"
+                else
+                    "Ver Acompanhamentos ativos (${participantesEmAcompanhamento.size})"
+            )
         }
 
         if (mostrarAcompanhamentos) {

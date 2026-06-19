@@ -6,15 +6,15 @@ import kotlinx.coroutines.flow.asStateFlow
 
 object UserSessionManager {
     
-    private val _usuarioAtivoId = MutableStateFlow<String?>(null)
-    val usuarioAtivoId: StateFlow<String?> = _usuarioAtivoId.asStateFlow()
+    private val _usuarioAtivoId = MutableStateFlow<Long?>(null)
+    val usuarioAtivoId: StateFlow<Long?> = _usuarioAtivoId.asStateFlow()
 
-    fun definirUsuarioAtivo(id: String) {
+    fun definirUsuarioAtivo(id: Long) {
         _usuarioAtivoId.value = id
     }
 
-    fun obterIdObrigatorio(): String {
-        return _usuarioAtivoId.value ?: throw IllegalStateException("Nenhum usuário ativo na sessão local.")
+    fun obterId(): Long? {
+        return _usuarioAtivoId.value
     }
 
     fun encerrarSessao() {

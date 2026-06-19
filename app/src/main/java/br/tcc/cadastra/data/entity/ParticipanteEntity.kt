@@ -12,7 +12,7 @@ import androidx.room.PrimaryKey
             entity = SessaoUsuarioEntity::class,
             parentColumns = ["usuarioId"],
             childColumns = ["usuarioLocalId"],
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.SET_NULL
         )
     ],
     indices = [Index(value = ["usuarioLocalId"])]
@@ -20,14 +20,14 @@ import androidx.room.PrimaryKey
 data class ParticipanteEntity(
     @PrimaryKey(autoGenerate = true)
     val idLocal: Long = 0,
-    val usuarioLocalId: String,
+    val usuarioLocalId: Long? = null,
     val nome: String,
     val telefone: String,
     val estagioFunil: String, // TRIAGEM, ACOMPANHAMENTO, ENCAMINHADO
     val dataCriacao: Long,
     val sincronizado: Boolean = false,
     val idRemoto: Long? = null,
-    
+
     val bairro: String = "",
     val cidade: String = "",
     val dataNascimento: String = "",

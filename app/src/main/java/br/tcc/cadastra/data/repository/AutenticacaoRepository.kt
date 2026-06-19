@@ -12,7 +12,7 @@ class AutenticacaoRepository(private val sessaoUsuarioDao: SessaoUsuarioDao) {
         sessaoUsuarioDao.salvarUsuarioLocal(usuario)
     }
 
-    suspend fun alternarUsuarioAtivo(usuarioId: String): Boolean = withContext(Dispatchers.IO) {
+    suspend fun alternarUsuarioAtivo(usuarioId: Long): Boolean = withContext(Dispatchers.IO) {
         val usuario = sessaoUsuarioDao.buscarUsuarioPorId(usuarioId)
         if (usuario != null) {
             val usuarioAtualizado = usuario.copy(dataUltimoAcesso = System.currentTimeMillis())

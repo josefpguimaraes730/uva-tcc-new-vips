@@ -13,6 +13,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import br.tcc.cadastra.ui.activities.RegistrationActivity
 import br.tcc.cadastra.ui.screens.DashboardContent
 import br.tcc.cadastra.ui.viewmodel.ParticipanteViewModel
 
@@ -24,7 +25,8 @@ class DashboardFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(requireActivity())[ParticipanteViewModel::class.java]
+        val activityMae = requireActivity() as RegistrationActivity
+        viewModel = ViewModelProvider(activityMae)[ParticipanteViewModel::class.java]
 
         return ComposeView(requireContext()).apply {
             setContent {
@@ -32,13 +34,15 @@ class DashboardFragment : Fragment() {
                 val listaMetricas by viewModel.metricasFunil.collectAsState()
 
                 DashboardContent(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
+                    modifier = Modifier.fillMaxSize().padding(16.dp),
                     participantes = listaParticipantes,
                     metricas = listaMetricas,
-                    onMudarEstagio = { participanteClicado ->
-                        viewModel.encaminharParticipante(participanteClicado)
+                    onMudarEstagio = { participante ->
+                        viewModel.encaminharParticipante(participante)
+                    },
+                    onItemClick = { participanteClicado ->
+                        viewModel.iniciarEdicao(participanteClicado)
+                        activityMae.irParaCadastro()
                     }
                 )
             }

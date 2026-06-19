@@ -25,12 +25,9 @@ class ParticipanteRepository(private val participanteDao: ParticipanteDao) {
     }
 
     fun listarParticipantesDoUsuarioAtivo(): Flow<List<ParticipanteEntity>> {
-        return UserSessionManager.usuarioAtivoId.flatMapLatest { idLogado ->
-            if (idLogado != null) {
-                participanteDao.listarParticipantesPorUsuario(idLogado)
-            } else {
-                flowOf(emptyList())
-            }
+        return UserSessionManager.usuarioAtivoId.flatMapLatest { idUsuarioLogado ->
+            val idBusca = idUsuarioLogado ?: 0L
+            participanteDao.listarParticipantesPorUsuario(idBusca)
         }
     }
 

@@ -1,5 +1,6 @@
 package br.tcc.cadastra.ui.screens
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,7 +26,10 @@ import br.tcc.cadastra.ui.viewmodel.ParticipanteViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DashboardScreen(viewModel: ParticipanteViewModel) {
+fun DashboardScreen(
+    viewModel: ParticipanteViewModel,
+    onItemClick: (ParticipanteEntity) -> Unit // Adicionado para permitir navegação se usado via Screen
+) {
     val listaParticipantes by viewModel.todosParticipantes.collectAsState()
     val metricas by viewModel.metricasFunil.collectAsState()
 
@@ -35,67 +39,15 @@ fun DashboardScreen(viewModel: ParticipanteViewModel) {
                 title = { Text("Dashboard VIP") }
             )
         }
-    ) { paddingValues ->
+    ) { paddingValores ->
         DashboardContent(
             modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-                .padding(16.dp),
+                .padding(paddingValores)
+                .fillMaxSize(),
             participantes = listaParticipantes,
             metricas = metricas,
-            onMudarEstagio = { participanteClicado ->
-                viewModel.encaminharParticipante(participanteClicado)
-            }
+            onMudarEstagio = { participante -> viewModel.encaminharParticipante(participante) },
+            onItemClick = onItemClick // Repassa corretamente para o arquivo unificado de componentes
         )
-    }
-}
-
-@Composable
-fun DashboardContent(
-    modifier: Modifier = Modifier,
-    participantes: List<ParticipanteEntity>,
-    metricas: List<MetricaFunil>,
-    onMudarEstagio: (ParticipanteEntity) -> Unit
-) {
-    Column(modifier = modifier) {
-        Text(
-            text = "Métricas Atuais do Funil",
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-
-        GridMetricasFunil(metricas = metricas)
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Text(
-            text = "Lista de Participantes Cadastrados",
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-
-        if (participantes.isEmpty()) {
-            Text(
-                text = "Nenhum participante cadastrado para este perfil local ainda.",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(vertical = 16.dp)
-            )
-        } else {
-            LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                items(
-                    items = participantes,
-                    key = { it.nome }
-                ) { participante ->
-                    ItemParticipante(
-                        participante = participante,
-                        onItemClick = { participanteClicado ->
-                            onMudarEstagio(participanteClicado)
-                        }
-                    )
-                }
-            }
-        }
     }
 }

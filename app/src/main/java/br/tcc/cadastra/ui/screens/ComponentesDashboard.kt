@@ -1,13 +1,16 @@
 package br.tcc.cadastra.ui.screens
 
-import androidx.compose.foundation.clickable // CORRIGIDO: Adicionado o import do Modificador de Clique
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -22,18 +25,21 @@ import br.tcc.cadastra.data.entity.ParticipanteEntity
 
 @Composable
 fun GridMetricasFunil(modifier: Modifier = Modifier, metricas: List<MetricaFunil>) {
-    val estagiosObrigatorios = listOf("TRIAGEM", "ACOMPANHAMENTO", "ENCAMINHADO")
+    // Especifica explicitamente que é uma lista de Strings para ajudar o compilador
+    val estagiosObrigatorios: List<String> = listOf("TRIAGEM", "ACOMPANHAMENTO", "ENCAMINHADO")
 
     Row(
-        modifier = modifier.fillMaxWidth(), 
+        modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         estagiosObrigatorios.forEach { estagio ->
-            val quantidade = metricas.find { it.estagio == estagio }?.quantidade ?: 0
-            
+            // Busca o objeto correspondente dentro da lista de métricas
+            val metricaCorrespondente = metricas.find { it.estagio == estagio }
+            val quantidade = metricaCorrespondente?.quantidade ?: 0
+
             CardMetrica(
-                modifier = Modifier.weight(1f), 
-                titulo = estagio, 
+                modifier = Modifier.weight(1f),
+                titulo = estagio,
                 valor = quantidade.toString()
             )
         }
@@ -41,43 +47,84 @@ fun GridMetricasFunil(modifier: Modifier = Modifier, metricas: List<MetricaFunil
 }
 
 @Composable
-private fun CardMetrica(modifier: Modifier = Modifier, titulo: String, valor: String) {
+fun CardMetrica(modifier: Modifier = Modifier, titulo: String, valor: String) {
     Card(
         modifier = modifier,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        )
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
     ) {
         Column(
-            modifier = Modifier.padding(12.dp), 
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            modifier = Modifier.padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = titulo, 
-                style = MaterialTheme.typography.labelSmall, 
-                color = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-            Text(
-                text = valor, 
-                style = MaterialTheme.typography.titleLarge, 
-                fontWeight = FontWeight.Bold, 
-                color = MaterialTheme.colorScheme.onPrimaryContainer
-            )
+            Text(text = titulo, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onPrimaryContainer)
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(text = valor, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
         }
     }
 }
 
 @Composable
-fun ItemParticipante(
+fun DashboardContent(
     modifier: Modifier = Modifier,
-    participante: ParticipanteEntity,
+    participantes: List<ParticipanteEntity>,
+    metricas: List<MetricaFunil>,
+    onMudarEstagio: (ParticipanteEntity) -> Unit,
     onItemClick: (ParticipanteEntity) -> Unit
 ) {
-    Card(
+    Column(
         modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Text(
+            text = "Painel Geral",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
+        )
+
+        GridMetricasFunil(metricas = metricas)
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = "Participantes Recentes",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold
+        )
+
+        if (participantes.isEmpty()) {
+            Text(
+                text = "Nenhum participante cadastrado nesta sessão local.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.outline
+            )
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(participantes) { participante ->
+                    CardParticipante(
+                        participante = participante,
+                        onItemClick = onItemClick // Resolvido: Repassando o evento
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun CardParticipante(
+    participante: ParticipanteEntity,
+    onItemClick: (ParticipanteEntity) -> Unit // Resolvido: Adicionado parâmetro que faltava
+) {
+    Card(
+        modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .clickable { onItemClick(participante) }, // CORRIGIDO: Agora resolve com o import correto do foundation
+            .clickable { onItemClick(participante) }, 
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
         )

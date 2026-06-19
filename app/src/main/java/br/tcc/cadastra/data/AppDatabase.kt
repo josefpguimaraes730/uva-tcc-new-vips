@@ -1,44 +1,41 @@
-package br.tcc.cadastra.data
+package br.tcc.cadastra.data.db
 
-import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import br.tcc.cadastra.data.dao.CelulaDao
+import android.content.Context
 import br.tcc.cadastra.data.dao.ParticipanteDao
+import br.tcc.cadastra.data.dao.CelulaDao
 import br.tcc.cadastra.data.dao.SessaoUsuarioDao
 import br.tcc.cadastra.data.entity.ParticipanteEntity
-import br.tcc.cadastra.data.entity.SessaoUsuarioEntity
 import br.tcc.cadastra.data.entity.CelulaEntity
+import br.tcc.cadastra.data.entity.SessaoUsuarioEntity
 
 @Database(
-    entities = [
-        SessaoUsuarioEntity::class, 
-        ParticipanteEntity::class,
-        CelulaEntity::class
-    ],
-    version = 2,
+    entities = [ParticipanteEntity::class, CelulaEntity::class, SessaoUsuarioEntity::class],
+    version = 1,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
-
-    abstract fun sessaoUsuarioDao(): SessaoUsuarioDao
+    
     abstract fun participanteDao(): ParticipanteDao
     abstract fun celulaDao(): CelulaDao
+    abstract fun sessaoUsuarioDao(): SessaoUsuarioDao
 
     companion object {
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
-        fun getDatabase(context: Context): AppDatabase {
+        fun obterBanco(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "instituicao_social_db"
+                    "sistema_cadastra_db"
                 )
-                .fallbackToDestructiveMigration()
+                .fallbackToDestructiveMigration() 
                 .build()
+                
                 INSTANCE = instance
                 instance
             }
