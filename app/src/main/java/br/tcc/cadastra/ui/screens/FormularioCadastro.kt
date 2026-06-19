@@ -26,36 +26,36 @@ fun FormularioCadastro(
 ) {
     val scrollState = rememberScrollState()
 
-
+    // Estados vinculados aos campos da ParticipanteEntity
     var nomeCompleto by remember { mutableStateOf(participanteEdicao?.nome ?: "") }
     var telefone by remember { mutableStateOf(participanteEdicao?.telefone ?: "") }
-    var temWhatsapp by remember { mutableStateOf(participanteEdicao?.sincronizado ?: true) } 
-    var bairro by remember { mutableStateOf("") }
-    var cidade by remember { mutableStateOf("") }
-    var dataNascimento by remember { mutableStateOf("") }
-    var participaIgreja by remember { mutableStateOf(false) }
-    var qualIgreja by remember { mutableStateOf("") }
-    var vezesVisitadas by remember { mutableStateOf("1") }
-
+    var temWhatsapp by remember { mutableStateOf(participanteEdicao?.temWhatsapp ?: true) }
+    var bairro by remember { mutableStateOf(participanteEdicao?.bairro ?: "") }
+    var cidade by remember { mutableStateOf(participanteEdicao?.cidade ?: "") }
+    var dataNascimento by remember { mutableStateOf(participanteEdicao?.dataNascimento ?: "") }
+    var participaIgreja by remember { mutableStateOf(participanteEdicao?.participaIgreja ?: false) }
+    var qualIgreja by remember { mutableStateOf(participanteEdicao?.qualIgreja ?: "") }
+    var vezesVisitadas by remember { mutableStateOf(participanteEdicao?.vezesVisitadas ?: "1") }
 
     val opcoesComoConheceu = listOf("Convite", "Rede Social / Internet", "Passando na Rua", "Outros")
     var dropdownExpandido by remember { mutableStateOf(false) }
-    var comoConheceuSelecionado by remember { mutableStateOf(opcoesComoConheceu[0]) }
-
+    var comoConheceuSelecionado by remember { mutableStateOf(participanteEdicao?.comoConheceu ?: opcoesComoConheceu[0]) }
 
     val opcoesAcompanhantes = listOf("Sozinho", "Cônjuge", "Filhos", "Amigos", "Outros")
-    var acompanhantesSelecionados by remember { mutableStateOf(setOf<String>()) }
-
+    var acompanhantesSelecionados by remember { 
+        mutableStateOf(
+            participanteEdicao?.acompanhantes?.split(",")?.filter { it.isNotBlank() }?.toSet() ?: emptySet()
+        ) 
+    }
 
     val opcoesApelo = listOf("Não", "Salvação", "Reconciliação", "Batismo")
     var dropdownApeloExpandido by remember { mutableStateOf(false) }
-    var apeloSelecionado by remember { mutableStateOf(opcoesApelo[0]) }
+    var apeloSelecionado by remember { mutableStateOf(participanteEdicao?.apelo ?: opcoesApelo[0]) }
 
     var dropdownuGroupExpandido by remember { mutableStateOf(false) }
-    var uGroupSelecionado by remember { mutableStateOf("Nenhum") }
+    var uGroupSelecionado by remember { mutableStateOf(participanteEdicao?.uGroupIndicado ?: "Nenhum") }
 
-
-
+    // RF002 - Cadastro com Inteligência de Funil
     val estagioCalculado = remember(participanteEdicao, apeloSelecionado, uGroupSelecionado) {
         if (participanteEdicao != null || apeloSelecionado != "Não" || uGroupSelecionado != "Nenhum") {
             "ACOMPANHAMENTO"
@@ -78,21 +78,17 @@ fun FormularioCadastro(
             color = MaterialTheme.colorScheme.primary
         )
 
-        if (participanteEdicao != null) {
-            SuggestionChip(
-                onClick = {},
-                label = { Text("Estágio Atual: $estagioCalculado") }
-            )
-        }
-
+        SuggestionChip(
+            onClick = {},
+            label = { Text("Estágio Calculado: $estagioCalculado") }
+        )
 
         OutlinedTextField(
             value = nomeCompleto,
             onValueChange = { nomeCompleto = it },
             label = { Text("Nome Completo") },
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            enabled = participanteEdicao == null // Bloqueia o nome se for apenas para completar cadastro
+            singleLine = true
         )
 
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -139,7 +135,6 @@ fun FormularioCadastro(
 
         HorizontalDivider()
 
-
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text("Já participa de alguma igreja?", modifier = Modifier.weight(1f))
             Switch(checked = participaIgreja, onCheckedChange = { participaIgreja = it })
@@ -162,9 +157,7 @@ fun FormularioCadastro(
             modifier = Modifier.fillMaxWidth()
         )
 
-
         Text("Conexão e Espiritual", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-
 
         ExposedDropdownMenuBox(
             expanded = dropdownExpandido,
@@ -184,7 +177,6 @@ fun FormularioCadastro(
                 }
             }
         }
-
 
         ExposedDropdownMenuBox(
             expanded = dropdownApeloExpandido,
@@ -233,7 +225,10 @@ fun FormularioCadastro(
                 opcoesAcompanhantes.take(3).forEach { opcao ->
                     FilterChip(
                         selected = acompanhantesSelecionados.contains(opcao),
-                        onClick = { acompanhantesSelecionados = if (acompanhantesSelecionados.contains(opcao)) acompanhantesSelecionados - opcao else acompanhantesSelecionados + opcao },
+                        onClick = { 
+                            acompanhantesSelecionados = if (acompanhantesSelecionados.contains(opcao)) 
+                                acompanhantesSelecionados - opcao else acompanhantesSelecionados + opcao 
+                        },
                         label = { Text(opcao) }
                     )
                 }
@@ -242,7 +237,10 @@ fun FormularioCadastro(
                 opcoesAcompanhantes.drop(3).forEach { opcao ->
                     FilterChip(
                         selected = acompanhantesSelecionados.contains(opcao),
-                        onClick = { acompanhantesSelecionados = if (acompanhantesSelecionados.contains(opcao)) acompanhantesSelecionados - opcao else acompanhantesSelecionados + opcao },
+                        onClick = { 
+                            acompanhantesSelecionados = if (acompanhantesSelecionados.contains(opcao)) 
+                                acompanhantesSelecionados - opcao else acompanhantesSelecionados + opcao 
+                        },
                         label = { Text(opcao) }
                     )
                 }
@@ -254,8 +252,22 @@ fun FormularioCadastro(
         Button(
             onClick = {
                 viewModel.salvarParticipante(
+                    idLocal = participanteEdicao?.idLocal ?: 0,
                     nome = nomeCompleto,
-                    estagioFunil = estagioCalculado
+                    telefone = telefone,
+                    temWhatsapp = temWhatsapp,
+                    estagioFunil = estagioCalculado,
+                    bairro = bairro,
+                    cidade = cidade,
+                    dataNascimento = dataNascimento,
+                    participaIgreja = participaIgreja,
+                    qualIgreja = qualIgreja,
+                    vezesVisitadas = vezesVisitadas,
+                    comoConheceu = comoConheceuSelecionado,
+                    acompanhantes = acompanhantesSelecionados.joinToString(","),
+                    apelo = apeloSelecionado,
+                    uGroupIndicado = uGroupSelecionado,
+                    idRemoto = participanteEdicao?.idRemoto
                 )
                 onCadastroSucesso()
             },

@@ -22,9 +22,21 @@ data class ParticipanteEntity(
     val idLocal: Long = 0,
     val usuarioLocalId: String,
     val nome: String,
-    val estagioFunil: String,
-    val dataCriacao: Long,
     val telefone: String,
+    val estagioFunil: String, // TRIAGEM, ACOMPANHAMENTO, ENCAMINHADO
+    val dataCriacao: Long,
     val sincronizado: Boolean = false,
-    val idRemoto: String? = null
+    val idRemoto: Long? = null,
+    
+    val bairro: String = "",
+    val cidade: String = "",
+    val dataNascimento: String = "",
+    val participaIgreja: Boolean = false,
+    val qualIgreja: String = "",
+    val vezesVisitadas: String = "1",
+    val comoConheceu: String = "",
+    val acompanhantes: String = "",
+    val apelo: String = "Não",
+    val uGroupIndicado: String = "Nenhum",
+    val temWhatsapp: Boolean = true
 )

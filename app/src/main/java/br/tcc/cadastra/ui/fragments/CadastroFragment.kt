@@ -31,12 +31,7 @@ class CadastroFragment : Fragment() {
                     listaCelulas = listaCelulasPorUsuario,
                     participanteEdicao = null,
                     onCadastroSucesso = {
-                        Toast.makeText(
-                            requireContext(), 
-                            "Cadastro local processado com sucesso!", 
-                            Toast.LENGTH_SHORT
-                        ).show()
-
+                        Toast.makeText(requireContext(), "Cadastro local processado com sucesso!", Toast.LENGTH_SHORT).show()
                         activityMae.irParaDashboard()
                     }
                 )

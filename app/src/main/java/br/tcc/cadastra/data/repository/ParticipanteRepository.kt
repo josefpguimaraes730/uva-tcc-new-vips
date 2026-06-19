@@ -11,20 +11,17 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.withContext
 
 class ParticipanteRepository(private val participanteDao: ParticipanteDao) {
-    suspend fun salvarParticipanteLocal(nome: String, estagioFunil: String) = withContext(Dispatchers.IO) {
-        val usuarioId = UserSessionManager.obterIdObrigatorio()
-        
-        val novoParticipante = ParticipanteEntity(
-            usuarioLocalId = usuarioId,
-            nome = nome,
-            estagioFunil = estagioFunil,
-            dataCriacao = System.currentTimeMillis(),
-            telefone = "",
-            sincronizado = false,
-            idRemoto = null
+
+    suspend fun salvarParticipanteCompleto(participante: ParticipanteEntity) = withContext(Dispatchers.IO) {
+        participanteDao.inserirOuAtualizar(participante)
+    }
+
+    suspend fun evoluirEstagioParticipante(participante: ParticipanteEntity, novoEstagio: String) = withContext(Dispatchers.IO) {
+        val participanteAtualizado = participante.copy(
+            estagioFunil = novoEstagio,
+            sincronizado = false
         )
-        
-        participanteDao.inserirOuAtualizar(novoParticipante)
+        participanteDao.inserirOuAtualizar(participanteAtualizado)
     }
 
     fun listarParticipantesDoUsuarioAtivo(): Flow<List<ParticipanteEntity>> {
@@ -45,10 +42,5 @@ class ParticipanteRepository(private val participanteDao: ParticipanteDao) {
                 flowOf(emptyList())
             }
         }
-    }
-
-    suspend fun rodarExpurgoDeDadosSincronizados() = withContext(Dispatchers.IO) {
-        val usuarioId = UserSessionManager.obterIdObrigatorio()
-        participanteDao.executarExpurgoDadosSincronizados(usuarioId)
     }
 }

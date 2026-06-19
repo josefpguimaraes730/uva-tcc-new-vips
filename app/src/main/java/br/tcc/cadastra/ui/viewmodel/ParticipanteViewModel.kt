@@ -7,9 +7,9 @@ import br.tcc.cadastra.data.entity.ParticipanteEntity
 import br.tcc.cadastra.data.repository.CelulaRepository
 import br.tcc.cadastra.data.repository.ParticipanteRepository
 import br.tcc.cadastra.data.dao.MetricaFunil
+import br.tcc.cadastra.data.session.UserSessionManager
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -19,57 +19,71 @@ class ParticipanteViewModel(
 ) : ViewModel() {
 
     val todasCelulas: StateFlow<List<CelulaEntity>> = celulaRepository.todasCelulas
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+        .stateIn(scope = viewModelScope, started = SharingStarted.WhileSubscribed(5000), initialValue = emptyList())
 
     val todosParticipantes: StateFlow<List<ParticipanteEntity>> = participanteRepository.listarParticipantesDoUsuarioAtivo()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
-
-    val participantesEmAcompanhamento: StateFlow<List<ParticipanteEntity>> = todosParticipantes
-        .combine(todosParticipantes) { lista, _ ->
-            lista.filter { it.estagioFunil == "ACOMPANHAMENTO" }
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+        .stateIn(scope = viewModelScope, started = SharingStarted.WhileSubscribed(5000), initialValue = emptyList())
 
     val metricasFunil: StateFlow<List<MetricaFunil>> = participanteRepository.obterMetricasFunilDoUsuarioAtivo()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+        .stateIn(scope = viewModelScope, started = SharingStarted.WhileSubscribed(5000), initialValue = emptyList())
 
-    fun salvarParticipante(nome: String, estagioFunil: String) {
+    fun salvarParticipante(
+        idLocal: Long = 0,
+        nome: String,
+        telefone: String,
+        temWhatsapp: Boolean,
+        estagioFunil: String,
+        bairro: String,
+        cidade: String,
+        dataNascimento: String,
+        participaIgreja: Boolean,
+        qualIgreja: String,
+        vezesVisitadas: String,
+        comoConheceu: String,
+        acompanhantes: String,
+        apelo: String,
+        uGroupIndicado: String,
+        idRemoto: Long?
+    ) {
         viewModelScope.launch {
-            participanteRepository.salvarParticipanteLocal(nome, estagioFunil)
+            val usuarioId = UserSessionManager.obterIdObrigatorio()
+            val participante = ParticipanteEntity(
+                idLocal = idLocal,
+                usuarioLocalId = usuarioId,
+                nome = nome,
+                telefone = telefone,
+                temWhatsapp = temWhatsapp,
+                estagioFunil = estagioFunil,
+                dataCriacao = System.currentTimeMillis(),
+                sincronizado = false,
+                idRemoto = idRemoto,
+                bairro = bairro,
+                cidade = cidade,
+                dataNascimento = dataNascimento,
+                participaIgreja = participaIgreja,
+                qualIgreja = qualIgreja,
+                vezesVisitadas = vezesVisitadas,
+                comoConheceu = comoConheceu,
+                acompanhantes = acompanhantes,
+                apelo = apelo,
+                uGroupIndicado = uGroupIndicado
+            )
+            participanteRepository.salvarParticipanteCompleto(participante)
         }
     }
 
     fun encaminharParticipante(participante: ParticipanteEntity) {
         viewModelScope.launch {
-            participanteRepository.salvarParticipanteLocal(participante.nome, "ENCAMINHADO")
+            participanteRepository.evoluirEstagioParticipante(participante, "ENCAMINHADO")
         }
     }
 
     fun carregarCelulasDoCsv(linhasCsv: List<String>) {
         viewModelScope.launch {
             val listaCelulas = mutableListOf<CelulaEntity>()
-
             for (linha in linhasCsv) {
                 if (linha.isBlank() || linha.startsWith("nome", ignoreCase = true)) continue
-
                 val colunasTratadas = linha.split(",")
-
                 if (colunasTratadas.size >= 5) {
                     val celula = CelulaEntity(
                         nome = colunasTratadas[0].trim(),
@@ -82,10 +96,7 @@ class ParticipanteViewModel(
                     listaCelulas.add(celula)
                 }
             }
-
-            if (listaCelulas.isNotEmpty()) {
-                celulaRepository.salvarCelulas(listaCelulas)
-            }
+            if (listaCelulas.isNotEmpty()) celulaRepository.salvarCelulas(listaCelulas)
         }
     }
 }
